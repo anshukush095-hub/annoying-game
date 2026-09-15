@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/game_theme.dart';
 import '../theme/game_characters.dart';
+import '../models/punch_weapon.dart';
 import '../services/game_state.dart';
 import '../services/ad_service.dart';
 import '../widgets/game_button.dart';
@@ -31,6 +32,48 @@ class _ShopScreenState extends State<ShopScreen>
     super.dispose();
   }
 
+  String _getSkinRarity(String skinType) {
+    switch (skinType) {
+      case 'gold':
+      case 'king':
+        return 'GOLDEN';
+      case 'superhero':
+      case 'robot':
+      case 'alien':
+        return 'LEGENDARY';
+      case 'boss':
+      case 'vampire':
+      case 'pirate':
+      case 'astronaut':
+        return 'EPIC';
+      case 'clown':
+      case 'police':
+      case 'ninja':
+      case 'boxer':
+      case 'chef':
+      case 'scientist':
+      case 'zombie':
+        return 'RARE';
+      default:
+        return 'COMMON';
+    }
+  }
+
+  Color _getRarityColor(String rarity) {
+    switch (rarity) {
+      case 'GOLDEN':
+        return const Color(0xFFFFD54F);
+      case 'LEGENDARY':
+        return const Color(0xFFFF4081);
+      case 'EPIC':
+        return const Color(0xFFAB47BC);
+      case 'RARE':
+        return const Color(0xFF29B6F6);
+      default:
+        return const Color(0xFF9E9E9E);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +91,7 @@ class _ShopScreenState extends State<ShopScreen>
                 children: [
                   // Top Bar
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     child: Row(
                       children: [
                         GameIconButton(
@@ -58,10 +101,10 @@ class _ShopScreenState extends State<ShopScreen>
                         ),
                         const SizedBox(width: 14),
                         const Text(
-                          'Shop',
+                          'Store & Armory',
                           style: TextStyle(
                             color: Colors.white,
-                            fontSize: 24,
+                            fontSize: 22,
                             fontWeight: FontWeight.w900,
                             shadows: [
                               Shadow(offset: Offset(0, 2), blurRadius: 4, color: Colors.black45),
@@ -82,9 +125,9 @@ class _ShopScreenState extends State<ShopScreen>
                     ),
                   ),
 
-                  // 🎬 Rewarded Ad Banner: Free +500 Coins for Skins & Gloves
+                  // 🎬 Rewarded Ad Banner: Free +500 Coins
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                     child: InkWell(
                       onTap: () {
                         AdService().showRewardedAd(
@@ -124,7 +167,7 @@ class _ShopScreenState extends State<ShopScreen>
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'FREE COINS FOR SKINS & GLOVES',
+                                    'FREE COINS FOR SKINS & WEAPONS',
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
@@ -167,9 +210,9 @@ class _ShopScreenState extends State<ShopScreen>
                     ),
                   ),
 
-                  // Tabs: Skins, Gloves, Backgrounds (Match Screen 8)
+                  // Tabs: Locker (Skins), Armory (Weapons), Arenas
                   Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                     decoration: BoxDecoration(
                       color: const Color(0xFF0D47A1),
                       borderRadius: BorderRadius.circular(20),
@@ -183,13 +226,13 @@ class _ShopScreenState extends State<ShopScreen>
                       ),
                       labelColor: const Color(0xFFFFD54F),
                       unselectedLabelColor: Colors.white70,
-                      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                      labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
                       indicatorSize: TabBarIndicatorSize.tab,
                       dividerColor: Colors.transparent,
                       tabs: const [
-                        Tab(text: 'Skins'),
-                        Tab(text: 'Gloves'),
-                        Tab(text: 'Backgrounds'),
+                        Tab(text: 'Locker (20+ Skins)'),
+                        Tab(text: 'Armory Shop'),
+                        Tab(text: 'Arenas'),
                       ],
                     ),
                   ),
@@ -199,8 +242,8 @@ class _ShopScreenState extends State<ShopScreen>
                     child: TabBarView(
                       controller: _tabController,
                       children: [
-                        _buildSkinsTab(),
-                        _buildGlovesTab(),
+                        _buildLockerTab(),
+                        _buildArmoryTab(),
                         _buildBackgroundsTab(),
                       ],
                     ),
@@ -214,108 +257,165 @@ class _ShopScreenState extends State<ShopScreen>
     );
   }
 
-  // 1. Skins Tab (Default, Red Hair, Blue, Police, Clown, Gold)
-  Widget _buildSkinsTab() {
+  // 1. Locker Tab (Screenshot 3 Alignment: Collect 20+ Hilarious Skins)
+  Widget _buildLockerTab() {
     return GridView.builder(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(14),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 3,
         crossAxisSpacing: 10,
         mainAxisSpacing: 12,
-        childAspectRatio: 0.72,
+        childAspectRatio: 0.64,
       ),
       itemCount: gameState.allSkins.length,
       itemBuilder: (context, index) {
         final skin = gameState.allSkins[index];
         final isUnlocked = gameState.isSkinUnlocked(skin.id);
         final isEquipped = gameState.equippedSkinId == skin.id;
+        final rarity = _getSkinRarity(skin.skinType);
+        final rarityColor = _getRarityColor(rarity);
 
         return Container(
           decoration: BoxDecoration(
-            color: const Color(0xFF1565C0).withValues(alpha: 0.92),
-            borderRadius: BorderRadius.circular(18),
+            color: const Color(0xFF0F3E7D),
+            borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isEquipped ? const Color(0xFFFFD54F) : const Color(0xFF42A5F5),
+              color: isEquipped
+                  ? const Color(0xFFFFD54F)
+                  : (isUnlocked ? rarityColor.withValues(alpha: 0.6) : Colors.black45),
               width: isEquipped ? 3 : 1.5,
             ),
-            boxShadow: const [
-              BoxShadow(color: Colors.black26, offset: Offset(0, 4), blurRadius: 4),
+            boxShadow: [
+              if (isEquipped)
+                BoxShadow(
+                  color: const Color(0xFFFFD54F).withValues(alpha: 0.4),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
             ],
           ),
-          padding: const EdgeInsets.all(8),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              UncleCharacterWidget(
-                size: 58,
-                skin: skin.skinType,
+              // Rarity Tag
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                decoration: BoxDecoration(
+                  color: rarityColor.withValues(alpha: 0.25),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: rarityColor, width: 1),
+                ),
+                child: Text(
+                  rarity,
+                  style: TextStyle(
+                    color: rarityColor,
+                    fontSize: 9,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.5,
+                  ),
+                ),
               ),
-              const SizedBox(height: 6),
+
+              // Character Avatar
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: UncleCharacterWidget(
+                  size: 52,
+                  skin: skin.skinType,
+                ),
+              ),
+
+              // Name
               Text(
                 skin.name,
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 13,
+                  fontSize: 11,
                 ),
               ),
-              const SizedBox(height: 6),
 
               // Button / Status Badge
               if (isEquipped)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
                   decoration: BoxDecoration(
                     color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: const [
+                      BoxShadow(color: Colors.black26, offset: Offset(0, 2), blurRadius: 2),
+                    ],
                   ),
-                  child: const Text(
-                    'Owned',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                  child: const Center(
+                    child: Text(
+                      'EQUIPPED',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
                   ),
                 )
               else if (isUnlocked)
-                ElevatedButton(
-                  onPressed: () => gameState.equipSkin(skin.id),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    minimumSize: const Size(60, 26),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                SizedBox(
+                  width: double.infinity,
+                  height: 28,
+                  child: ElevatedButton(
+                    onPressed: () => gameState.equipSkin(skin.id),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1E88E5),
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
+                    child: const Text(
+                      'SELECT',
+                      style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
+                    ),
                   ),
-                  child: const Text('Equip', style: TextStyle(color: Colors.white, fontSize: 11)),
                 )
               else
-                ElevatedButton.icon(
-                  onPressed: () {
-                    if (gameState.unlockSkin(skin.id, skin.price)) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('🎉 Unlocked ${skin.name}!')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Text('⚠️ Not enough coins! Watch an ad for +500 Coins!'),
-                          backgroundColor: const Color(0xFFC62828),
-                          duration: const Duration(seconds: 4),
-                          action: SnackBarAction(
-                            label: 'GET +500 🪙',
-                            textColor: const Color(0xFFFFD54F),
-                            onPressed: () => AdService().showRewardedAd(context, rewardAmount: 500),
+                SizedBox(
+                  width: double.infinity,
+                  height: 28,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      if (gameState.unlockSkin(skin.id, skin.price)) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('🎉 Unlocked ${skin.name}!')),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Text('⚠️ Not enough coins! Watch an ad for +500 Coins!'),
+                            backgroundColor: const Color(0xFFC62828),
+                            duration: const Duration(seconds: 4),
+                            action: SnackBarAction(
+                              label: 'GET +500 🪙',
+                              textColor: const Color(0xFFFFD54F),
+                              onPressed: () => AdService().showRewardedAd(context, rewardAmount: 500),
+                            ),
                           ),
-                        ),
-                      );
-                    }
-                  },
-                  icon: const Icon(Icons.monetization_on, color: Color(0xFFFFD54F), size: 12),
-                  label: Text('${skin.price}', style: const TextStyle(fontSize: 11)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFB8C00),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                    minimumSize: const Size(60, 26),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.monetization_on, color: Color(0xFFFFD54F), size: 12),
+                    label: Text(
+                      '${skin.price}',
+                      style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFB8C00),
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.zero,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    ),
                   ),
                 ),
             ],
@@ -325,84 +425,189 @@ class _ShopScreenState extends State<ShopScreen>
     );
   }
 
-  // 2. Gloves Tab
-  Widget _buildGlovesTab() {
+  // 2. Armory Shop Tab (Screenshot 4 Alignment: Upgrade Crazy Weapons & Gloves)
+  Widget _buildArmoryTab() {
+    final weapons = PunchWeapon.getAllWeapons();
+
     return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: gameState.allGloves.length,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      itemCount: weapons.length,
       itemBuilder: (context, index) {
-        final glove = gameState.allGloves[index];
-        final isUnlocked = gameState.isGloveUnlocked(glove.id);
-        final isEquipped = gameState.equippedGloveId == glove.id;
+        final weapon = weapons[index];
+        final level = gameState.getWeaponLevel(weapon.id);
+        final isEquipped = gameState.equippedWeaponId == weapon.id;
+        final damage = weapon.baseDamage + (level - 1) * 1500;
+        final upgradeCost = weapon.upgradeCost + (level - 1) * 3000;
 
         return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(12),
+          margin: const EdgeInsets.only(bottom: 14),
           decoration: BoxDecoration(
-            color: const Color(0xFF1565C0).withValues(alpha: 0.92),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                const Color(0xFF1A237E),
+                weapon.primaryColor.withValues(alpha: 0.35),
+                const Color(0xFF0D47A1),
+              ],
+            ),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(
-              color: isEquipped ? const Color(0xFFFFD54F) : const Color(0xFF42A5F5),
-              width: isEquipped ? 3 : 1.5,
+              color: isEquipped ? const Color(0xFFFFD54F) : weapon.primaryColor.withValues(alpha: 0.8),
+              width: isEquipped ? 2.8 : 1.5,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: weapon.glowColor.withValues(alpha: 0.2),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-          child: Row(
+          padding: const EdgeInsets.all(14),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              // Header: Tier Badge & Weapon Name
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: weapon.primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.white, width: 1.2),
+                    ),
+                    child: Text(
+                      'Tier ${weapon.tier}',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.black38,
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                    child: Text(
+                      weapon.rarity,
+                      style: TextStyle(
+                        color: weapon.glowColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  if (isEquipped)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4CAF50),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: const Text(
+                        'EQUIPPED',
+                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 11),
+                      ),
+                    )
+                  else
+                    ElevatedButton(
+                      onPressed: () => gameState.equipWeapon(weapon.id),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF1E88E5),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                        minimumSize: const Size(64, 28),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('EQUIP', style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold)),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 10),
+
+              // Weapon Title & Icon
+              Row(
+                children: [
+                  Container(
+                    width: 56,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.black45,
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(color: weapon.primaryColor, width: 2),
+                      boxShadow: [
+                        BoxShadow(
+                          color: weapon.primaryColor.withValues(alpha: 0.4),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: Icon(weapon.icon, color: weapon.glowColor, size: 32),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          weapon.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 16,
+                          ),
+                        ),
+                        Text(
+                          weapon.description,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(color: Colors.white70, fontSize: 11),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              // Stats Row: Damage, Crit, Secondary
               Container(
-                width: 60,
-                height: 60,
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF0D47A1),
-                  borderRadius: BorderRadius.circular(14),
+                  color: Colors.black38,
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                alignment: Alignment.center,
-                child: BoxingGloveWidget(
-                  size: 44,
-                  gloveColor: glove.color,
-                ),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Text(
-                  glove.name,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w900,
-                    fontSize: 16,
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(Icons.sports_mma, 'DAMAGE', '$damage'),
+                    _buildStatItem(Icons.star, 'CRIT', '${weapon.critRate}%'),
+                    _buildStatItem(Icons.bolt, weapon.secondaryStatName, '${weapon.secondaryStatValue}%'),
+                  ],
                 ),
               ),
-              if (isEquipped)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4CAF50),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Text('EQUIPPED', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                )
-              else if (isUnlocked)
-                ElevatedButton(
-                  onPressed: () => gameState.equipGlove(glove.id),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1E88E5),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  ),
-                  child: const Text('EQUIP', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                )
-              else
-                ElevatedButton.icon(
+              const SizedBox(height: 10),
+
+              // Upgrade Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: () {
-                    if (gameState.unlockGlove(glove.id, glove.price)) {
+                    if (gameState.upgradeWeapon(weapon.id, upgradeCost)) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('🎉 Unlocked ${glove.name}!')),
+                        SnackBar(content: Text('⚔️ ${weapon.name} upgraded to Level ${level + 1}!')),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: const Text('⚠️ Not enough coins! Watch an ad for +500 Coins!'),
+                          content: const Text('⚠️ Not enough coins for upgrade! Watch an ad for +500 Coins!'),
                           backgroundColor: const Color(0xFFC62828),
-                          duration: const Duration(seconds: 4),
                           action: SnackBarAction(
                             label: 'GET +500 🪙',
                             textColor: const Color(0xFFFFD54F),
@@ -412,14 +617,36 @@ class _ShopScreenState extends State<ShopScreen>
                       );
                     }
                   },
-                  icon: const Icon(Icons.monetization_on, color: Color(0xFFFFD54F), size: 16),
-                  label: Text('${glove.price}'),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFB8C00),
-                    foregroundColor: Colors.white,
+                    backgroundColor: const Color(0xFFFFB300),
+                    foregroundColor: const Color(0xFF3E2723),
+                    padding: const EdgeInsets.symmetric(vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    elevation: 3,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'UPGRADE LVL $level ➔ ${level + 1}',
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 12),
+                      ),
+                      const SizedBox(width: 8),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE65100),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '$upgradeCost 🪙',
+                          style: const TextStyle(color: Color(0xFFFFD54F), fontWeight: FontWeight.bold, fontSize: 11),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+              ),
             ],
           ),
         );
@@ -427,7 +654,23 @@ class _ShopScreenState extends State<ShopScreen>
     );
   }
 
-  // 3. Backgrounds Tab
+  Widget _buildStatItem(IconData icon, String label, String value) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFFFFD54F), size: 14),
+        const SizedBox(width: 4),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(label, style: const TextStyle(color: Colors.white60, fontSize: 9, fontWeight: FontWeight.bold)),
+            Text(value, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w900)),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // 3. Arenas / Backgrounds Tab
   Widget _buildBackgroundsTab() {
     return ListView.builder(
       padding: const EdgeInsets.all(16),

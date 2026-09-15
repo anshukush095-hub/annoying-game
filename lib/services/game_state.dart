@@ -24,6 +24,9 @@ class GameState extends ChangeNotifier {
   String _equippedGloveId = 'classic_red';
   final Set<String> _unlockedGloves = {'classic_red'};
 
+  String _equippedWeaponId = 'classic_glove';
+  final Map<String, int> _weaponLevels = {};
+
   String _selectedBackgroundId = 'rooftop';
 
   // Settings
@@ -37,10 +40,11 @@ class GameState extends ChangeNotifier {
   String _graphicsQuality = 'High';
   bool _hasSeenDemo = false;
 
-  // Daily Reward
+  // Daily Reward & Lucky Spin
   int _dailyStreak = 1;
   int _lastClaimDay = 0;
   String? _lastDailyClaimDate;
+  String? _lastSpinDate;
 
   // Achievements
   List<AchievementItem> _achievements = [];
@@ -54,7 +58,9 @@ class GameState extends ChangeNotifier {
   List<LevelData> get levels => _levels;
   String get equippedSkinId => _equippedSkinId;
   String get equippedGloveId => _equippedGloveId;
+  String get equippedWeaponId => _equippedWeaponId;
   String get selectedBackgroundId => _selectedBackgroundId;
+  int getWeaponLevel(String weaponId) => _weaponLevels[weaponId] ?? 1;
 
   bool get soundEnabled => _soundEnabled;
   bool get musicEnabled => _musicEnabled;
@@ -92,6 +98,13 @@ class GameState extends ChangeNotifier {
   }
 
   bool get canClaimDailyReward => !isDailyRewardClaimedToday;
+  bool get canFreeSpin => _lastSpinDate != getTodayDateString();
+
+  void performSpin() {
+    _lastSpinDate = getTodayDateString();
+    _saveToPrefs();
+    notifyListeners();
+  }
 
   Duration get timeUntilNextDailyReward {
     final now = DateTime.now();
@@ -225,6 +238,24 @@ class GameState extends ChangeNotifier {
       name: 'Dizzy Uncle',
       price: 6500,
       skinType: 'dizzy',
+    ),
+    CharacterSkin(
+      id: 'astronaut',
+      name: 'Astronaut',
+      price: 7000,
+      skinType: 'astronaut',
+    ),
+    CharacterSkin(
+      id: 'caveman',
+      name: 'Caveman',
+      price: 7200,
+      skinType: 'caveman',
+    ),
+    CharacterSkin(
+      id: 'farmer',
+      name: 'Farmer',
+      price: 7500,
+      skinType: 'farmer',
     ),
   ];
 
@@ -426,6 +457,22 @@ class GameState extends ChangeNotifier {
     }
   }
 
+  void equipWeapon(String weaponId) {
+    _equippedWeaponId = weaponId;
+    _saveToPrefs();
+    notifyListeners();
+  }
+
+  bool upgradeWeapon(String weaponId, int cost) {
+    if (spendCoins(cost)) {
+      _weaponLevels[weaponId] = getWeaponLevel(weaponId) + 1;
+      _saveToPrefs();
+      notifyListeners();
+      return true;
+    }
+    return false;
+  }
+
   void setBackground(String bgId) {
     _selectedBackgroundId = bgId;
     _saveToPrefs();
@@ -585,6 +632,7 @@ class GameState extends ChangeNotifier {
       _hasSeenDemo = prefs.getBool('hasSeenDemo') ?? false;
 
       _lastDailyClaimDate = prefs.getString('lastDailyClaimDate');
+      _lastSpinDate = prefs.getString('lastSpinDate');
       _dailyStreak = prefs.getInt('dailyStreak') ?? 1;
       _lastClaimDay = prefs.getInt('lastClaimDay') ?? 0;
 
@@ -632,6 +680,9 @@ class GameState extends ChangeNotifier {
       await prefs.setBool('hasSeenDemo', _hasSeenDemo);
       if (_lastDailyClaimDate != null) {
         await prefs.setString('lastDailyClaimDate', _lastDailyClaimDate!);
+      }
+      if (_lastSpinDate != null) {
+        await prefs.setString('lastSpinDate', _lastSpinDate!);
       }
       await prefs.setInt('dailyStreak', _dailyStreak);
       await prefs.setInt('lastClaimDay', _lastClaimDay);

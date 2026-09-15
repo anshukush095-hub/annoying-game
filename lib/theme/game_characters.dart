@@ -25,6 +25,9 @@ class UncleCharacterWidget extends StatelessWidget {
     'robot',
     'bomb',
     'dizzy',
+    'astronaut',
+    'caveman',
+    'farmer',
   ];
 
   static String getSkinForLevel(int level) {
@@ -76,6 +79,12 @@ class UncleCharacterWidget extends StatelessWidget {
         return 'Bomb Head Uncle';
       case 'dizzy':
         return 'Dizzy Uncle';
+      case 'astronaut':
+        return 'Astronaut Uncle';
+      case 'caveman':
+        return 'Caveman Uncle';
+      case 'farmer':
+        return 'Farmer Uncle';
       default:
         return 'Annoying Uncle';
     }
@@ -323,6 +332,24 @@ class _Uncle3DPainter extends CustomPainter {
       darkColor = const Color(0xFF37474F);
       hairBase = const Color(0xFF455A64);
       hairLight = const Color(0xFF90A4AE);
+    } else if (skin == 'astronaut') {
+      baseColor = const Color(0xFFECEFF1);
+      lightColor = Colors.white;
+      darkColor = const Color(0xFF90A4AE);
+      hairBase = const Color(0xFF37474F);
+      hairLight = const Color(0xFF546E7A);
+    } else if (skin == 'caveman') {
+      baseColor = const Color(0xFFD7CCC8);
+      lightColor = const Color(0xFFEFEBE9);
+      darkColor = const Color(0xFF8D6E63);
+      hairBase = const Color(0xFF3E2723);
+      hairLight = const Color(0xFF5D4037);
+    } else if (skin == 'farmer') {
+      baseColor = const Color(0xFF1976D2);
+      lightColor = const Color(0xFF64B5F6);
+      darkColor = const Color(0xFF0D47A1);
+      hairBase = const Color(0xFF4E342E);
+      hairLight = const Color(0xFF6D4C41);
     }
 
     if (isHit) {
@@ -470,6 +497,19 @@ class _Uncle3DPainter extends CustomPainter {
       canvas.drawCircle(const Offset(0, 31), 6, Paint()..color = const Color(0xFFFFF9C4));
       canvas.drawCircle(const Offset(0, 31), 6, strokePaint..strokeWidth = 1.5);
       strokePaint.strokeWidth = 3.2;
+    } else if (skin == 'astronaut') {
+      final packPaint = Paint()..color = const Color(0xFFB0BEC5);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-14, 6, 28, 20), const Radius.circular(5)), packPaint);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-14, 6, 28, 20), const Radius.circular(5)), strokePaint..strokeWidth = 1.5);
+      canvas.drawCircle(const Offset(-6, 12), 3, Paint()..color = const Color(0xFF00E676));
+      canvas.drawCircle(const Offset(6, 12), 3, Paint()..color = const Color(0xFFFF1744));
+      strokePaint.strokeWidth = 3.2;
+    } else if (skin == 'farmer') {
+      final strapPaint = Paint()..color = const Color(0xFF0D47A1)..strokeWidth = 6;
+      canvas.drawLine(const Offset(-12, -5), const Offset(-12, 30), strapPaint);
+      canvas.drawLine(const Offset(12, -5), const Offset(12, 30), strapPaint);
+      canvas.drawCircle(const Offset(-12, 10), 3.5, Paint()..color = const Color(0xFFFFD54F));
+      canvas.drawCircle(const Offset(12, 10), 3.5, Paint()..color = const Color(0xFFFFD54F));
     }
 
     // 6. 3D Head (Directional Spherical Gradient with Specular Light)
@@ -641,6 +681,31 @@ class _Uncle3DPainter extends CustomPainter {
       final platePaint = Paint()..color = const Color(0xFF90A4AE);
       canvas.drawRect(const Rect.fromLTWH(-28, -52, 28, 48), platePaint);
       canvas.drawLine(const Offset(0, -52), const Offset(0, -4), strokePaint);
+    } else if (skin == 'astronaut') {
+      final helmetRect = const Rect.fromLTWH(-28, -62, 56, 44);
+      final visorShader = const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [Color(0xFF80D8FF), Color(0xFF0091EA)],
+      ).createShader(helmetRect);
+      canvas.drawRRect(RRect.fromRectAndRadius(helmetRect, const Radius.circular(22)), Paint()..shader = visorShader);
+      canvas.drawRRect(RRect.fromRectAndRadius(helmetRect, const Radius.circular(22)), strokePaint);
+      canvas.drawLine(const Offset(-18, -52), const Offset(-8, -42), Paint()..color = Colors.white.withValues(alpha: 0.7)..strokeWidth = 3);
+    } else if (skin == 'farmer') {
+      final hatPaint = Paint()..color = const Color(0xFFFFD54F);
+      canvas.drawOval(const Rect.fromLTWH(-36, -58, 72, 18), hatPaint);
+      canvas.drawOval(const Rect.fromLTWH(-36, -58, 72, 18), strokePaint);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-18, -72, 36, 18), const Radius.circular(8)), hatPaint);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-18, -72, 36, 18), const Radius.circular(8)), strokePaint);
+      canvas.drawRect(const Rect.fromLTWH(-18, -56, 36, 4), Paint()..color = Colors.red);
+    } else if (skin == 'caveman') {
+      final bonePaint = Paint()..color = const Color(0xFFFFFDE7);
+      canvas.drawRRect(RRect.fromRectAndRadius(const Rect.fromLTWH(-16, -62, 32, 8), const Radius.circular(4)), bonePaint);
+      canvas.drawCircle(const Offset(-16, -58), 5.5, bonePaint);
+      canvas.drawCircle(const Offset(16, -58), 5.5, bonePaint);
+      canvas.drawCircle(const Offset(-16, -58), 5.5, strokePaint..strokeWidth = 1.5);
+      canvas.drawCircle(const Offset(16, -58), 5.5, strokePaint..strokeWidth = 1.5);
+      strokePaint.strokeWidth = 3.2;
     }
 
     // 9. Advanced 3D Cartoon Googly Eyes with Layered Depth
